@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Landlord Form</title>
+  <!-- <link rel="stylesheet"> -->
+</head>
+<body>
+  <div class="container">
+    <header class="form-header">
+      <h1>{{ selectedLandlord ? 'Update Landlord' : 'Add Landlord' }}</h1>
+    </header>
+    <form [formGroup]="landlordForm" (ngSubmit)="submitForm()" class="landlord-form">
+      <div class="form-grid">
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Name</mat-label>
+          <input matInput formControlName="name" required aria-required="true" />
+          <mat-error *ngIf="landlordForm.get('name')?.hasError('required')">Name is required</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Email</mat-label>
+          <input matInput formControlName="email" type="email" required aria-required="true" />
+          <mat-error *ngIf="landlordForm.get('email')?.hasError('required')">Email is required</mat-error>
+          <mat-error *ngIf="landlordForm.get('email')?.hasError('email')">Invalid email format</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Phone</mat-label>
+          <input matInput formControlName="phone" required aria-required="true" />
+          <mat-error *ngIf="landlordForm.get('phone')?.hasError('required')">Phone is required</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Id No.</mat-label>
+          <input matInput formControlName="identity" required aria-required="true" />
+          <mat-error *ngIf="landlordForm.get('identity')?.hasError('required')">ID Number is required</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>KRA Pin</mat-label>
+          <input matInput formControlName="pin" />
+        </mat-form-field>
+      </div>
+
+      <div class="form-actions">
+        <button mat-raised-button color="primary" type="submit" class="submit-button">
+          {{ selectedLandlord ? 'Update' : 'Add' }} Landlord
+        </button>
+        <button mat-button type="button" (click)="resetForm()" *ngIf="selectedLandlord" class="cancel-button">Cancel</button>
+      </div>
+    </form>
+  </div>
+</body>
+</html>
+

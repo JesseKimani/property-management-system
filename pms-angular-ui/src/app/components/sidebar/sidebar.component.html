@@ -1,0 +1,32 @@
+<aside [class.collapsed]="collapsed" [class.mobile-open]="mobileOpen">
+	<div class="sidebar-header">
+		<h1 *ngIf="!collapsed">{{ title }}</h1>
+		<button class="toggle-btn" (click)="toggleCollapse()">
+			<span class="toggle-icon">{{ collapsed ? '→' : '←' }}</span>
+		</button>
+	</div>
+	
+	<div class="menu-container">
+		<ul class="menu">
+			<li *ngFor="let item of menuItems" class="menu-item">
+				@if (item.children && item.children.length > 0) {
+					<app-submenu 
+						[item]="item" 
+						[collapsed]="collapsed" 
+						[level]="0" 
+						(expandedChange)="onSubmenuExpandedChange($event, item)">
+					</app-submenu>
+				} @else {
+					<a [routerLink]="item.route" 
+							[class.active]="isMenuItemActive(item)"
+							(click)="onMenuItemClick()">
+						<span class="icon" *ngIf="item.icon">{{ item.icon }}</span>
+						<span class="label" *ngIf="!collapsed">{{ item.label }}</span>
+					</a>
+				}
+			</li>
+		</ul>
+	</div>
+	
+	<div class="overlay" *ngIf="mobileOpen" (click)="closeMobileMenu()"></div>
+</aside>

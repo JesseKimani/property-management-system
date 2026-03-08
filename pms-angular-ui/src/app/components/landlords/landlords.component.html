@@ -1,0 +1,147 @@
+<h2>Landlords Register</h2>
+
+<div class="action-buttons">
+  <button mat-raised-button color="primary" (click)="goToAddLandlord()">
+    <mat-icon>add</mat-icon> Add Landlord
+  </button>
+  <button mat-raised-button color="accent" [disabled]="selection.selected.length !== 1" (click)="editSelected()">
+    <mat-icon>edit</mat-icon> Edit Selected
+  </button>
+  <button mat-raised-button color="warn" [disabled]="selection.selected.length === 0" (click)="deleteSelected()">
+    <mat-icon>delete</mat-icon> Delete Selected
+  </button>
+  <button mat-button *ngIf="selection.selected.length > 0" (click)="clearSelection()">
+    Clear Selection ({{selection.selected.length}})
+  </button>
+</div>
+
+<div class="container">
+  <div *ngIf="isLoading" class="loading-spinner">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading landlords...</p>
+  </div>
+
+  <table mat-table [dataSource]="displayedLandlords" class="mat-elevation-z8" *ngIf="!isLoading">
+    <!-- Checkbox Column -->
+    <ng-container matColumnDef="select">
+      <th mat-header-cell *matHeaderCellDef class="column-title">
+        <mat-checkbox 
+          (change)="$event ? toggleAllRows() : null"
+          [checked]="selection.hasValue() && isAllSelected()"
+          [indeterminate]="selection.hasValue() && !isAllSelected()">
+        </mat-checkbox>
+      </th>
+      <td mat-cell *matCellDef="let landlord" class="table-data">
+        <mat-checkbox
+          (click)="$event.stopPropagation()"
+          (change)="$event ? selection.toggle(landlord) : null"
+          [checked]="selection.isSelected(landlord)">
+        </mat-checkbox>
+      </td>
+    </ng-container>
+
+    <!-- Number Column - Sequential Numbers -->
+    <ng-container matColumnDef="number">
+      <th mat-header-cell *matHeaderCellDef class="column-title">No.</th>
+      <td mat-cell *matCellDef="let landlord; let i = index" class="table-data">
+        {{ currentPage * pageSize + i + 1 }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="name" class="table-column">
+      <th mat-header-cell *matHeaderCellDef class="column-title">Name</th>
+      <td mat-cell *matCellDef="let landlord" class="table-data">{{ landlord.name }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="email" class="table-column">
+      <th mat-header-cell *matHeaderCellDef class="column-title">Email</th>
+      <td mat-cell *matCellDef="let landlord" class="table-data">{{ landlord.email }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="phone" class="table-column">
+      <th mat-header-cell *matHeaderCellDef class="column-title">Phone</th>
+      <td mat-cell *matCellDef="let landlord" class="table-data">{{ landlord.phone }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="identity">
+      <th mat-header-cell *matHeaderCellDef class="column-title">Id No.</th>
+      <td mat-cell *matCellDef="let landlord" class="table-data">{{ landlord.identity }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="pin">
+      <th mat-header-cell *matHeaderCellDef class="column-title">KRA Pin</th>
+      <td mat-cell *matCellDef="let landlord" class="table-data">{{ landlord.pin }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="properties">
+      <th mat-header-cell *matHeaderCellDef class="column-title">Properties</th>
+      <td mat-cell *matCellDef="let landlord" class="table-data">
+        <span class="property-count">{{ getPropertyCount(landlord.id!) }}</span>
+        <button mat-icon-button color="primary" *ngIf="getPropertyCount(landlord.id!) > 0" 
+                (click)="$event.stopPropagation(); viewProperties(landlord)" matTooltip="View Properties">
+          <mat-icon>visibility</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr 
+      mat-row 
+      *matRowDef="let row; columns: displayedColumns;" 
+      class="table-row"
+      [class.selected-row]="selection.isSelected(row)"
+      (click)="selection.toggle(row)">
+    </tr>
+  </table>
+
+  <!-- Pagination -->
+  <mat-paginator 
+    [pageSizeOptions]="pageSizeOptions"
+    [pageSize]="pageSize"
+    [length]="totalLandlords"
+    (page)="onPageChange($event)"
+    showFirstLastButtons>
+  </mat-paginator>
+</div>
+
+<!-- Edit form section - shown when editing -->
+<div id="editForm" class="edit-form-container" *ngIf="selectedLandlord">
+  <h3>Edit Landlord</h3>
+  <form [formGroup]="landlordForm" (ngSubmit)="submitForm()">
+    <mat-form-field class="full-width">
+      <mat-label>Name</mat-label>
+      <input matInput formControlName="name" placeholder="Full Name">
+      <mat-error *ngIf="landlordForm.get('name')?.hasError('required')">Name is required</mat-error>
+    </mat-form-field>
+
+    <mat-form-field class="full-width">
+      <mat-label>Email</mat-label>
+      <input matInput formControlName="email" placeholder="Email">
+      <mat-error *ngIf="landlordForm.get('email')?.hasError('required')">Email is required</mat-error>
+      <mat-error *ngIf="landlordForm.get('email')?.hasError('email')">Please enter a valid email</mat-error>
+    </mat-form-field>
+
+    <mat-form-field class="full-width">
+      <mat-label>Phone</mat-label>
+      <input matInput formControlName="phone" placeholder="Phone Number">
+      <mat-error *ngIf="landlordForm.get('phone')?.hasError('required')">Phone is required</mat-error>
+    </mat-form-field>
+
+    <mat-form-field class="full-width">
+      <mat-label>ID Number</mat-label>
+      <input matInput formControlName="identity" placeholder="ID Number">
+      <mat-error *ngIf="landlordForm.get('identity')?.hasError('required')">ID Number is required</mat-error>
+    </mat-form-field>
+
+    <mat-form-field class="full-width">
+      <mat-label>KRA Pin</mat-label>
+      <input matInput formControlName="pin" placeholder="KRA Pin">
+      <mat-error *ngIf="landlordForm.get('pin')?.hasError('required')">KRA Pin is required</mat-error>
+    </mat-form-field>
+
+    <div class="form-actions">
+      <button mat-raised-button color="primary" type="submit" [disabled]="landlordForm.invalid">Update</button>
+      <button mat-button type="button" (click)="resetForm()">Cancel</button>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,22 @@
+<div class="submenu-container">
+	<div class="submenu-header" (click)="toggleExpand()" [class.active]="isActive()">
+		<span class="icon" *ngIf="item.icon">{{ item.icon }}</span>
+		<span class="label" *ngIf="!collapsed">{{ item.label }}</span>
+		<span class="expand-icon" *ngIf="!collapsed">{{ item.expanded ? '▼' : '▶' }}</span>
+	</div>
+	
+	<ul class="submenu" *ngIf="item.expanded && !collapsed" [style.margin-left.px]="35 + (level * 20)">
+		<li *ngFor="let child of item.children" class="submenu-item">
+			@if (child.children && child.children.length > 0) {
+				<app-submenu [item]="child" [collapsed]="collapsed" [level]="level + 1" (expandedChange)="onChildExpandedChange($event, child)"></app-submenu>
+			} @else {
+				<a [routerLink]="child.route" 
+						[class.active]="isChildActive(child)"
+						(click)="onChildClick()">
+					<span class="icon" *ngIf="child.icon">{{ child.icon }}</span>
+					<span class="label">{{ child.label }}</span>
+				</a>
+			}
+		</li>
+	</ul>
+</div>
