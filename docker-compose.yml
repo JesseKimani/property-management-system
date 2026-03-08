@@ -14,7 +14,7 @@ services:
       - db-data:/var/lib/postgresql/data
 
   backend:
-    build: ./property-management-system
+    build: ./pms-java-backend
     restart: always
     ports:
       - "8081:8081"  # Changed to match your local port
@@ -38,7 +38,7 @@ services:
       - db
 
   frontend:
-    build: ./property-management-system-ui
+    build: ./pms-angular-ui
     restart: always
     ports:
       - "4200:80"
